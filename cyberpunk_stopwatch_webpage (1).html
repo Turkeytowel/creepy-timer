@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyberpunk Stopwatch</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #0f0f1a, #000000);
+      font-family: 'Orbitron', sans-serif;
+      color: #00f7ff;
+    }
+
+    .container {
+      text-align: center;
+      border: 2px solid #00f7ff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #00f7ff, inset 0 0 20px #ff00ff;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .time {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #00f7ff;
+    }
+
+    input {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #00f7ff;
+      background: black;
+      color: #00f7ff;
+      text-align: center;
+      width: 120px;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: transparent;
+      color: #00f7ff;
+      border: 2px solid #00f7ff;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button:hover {
+      background: #00f7ff;
+      color: #000;
+      box-shadow: 0 0 10px #00f7ff, 0 0 20px #ff00ff;
+    }
+
+    .start { border-color: #00ff9f; color: #00ff9f; }
+    .start:hover { background: #00ff9f; }
+
+    .stop { border-color: #ff0055; color: #ff0055; }
+    .stop:hover { background: #ff0055; }
+
+    .reset { border-color: #ffaa00; color: #ffaa00; }
+    .reset:hover { background: #ffaa00; }
+
+    .countdown { border-color: #8a2be2; color: #8a2be2; }
+    .countdown:hover { background: #8a2be2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="time" id="display">00:00:00.000</div>
+
+    <input type="number" id="countdownInput" placeholder="Seconds" />
+
+    <div>
+      <button class="start" onclick="startTimer()">Start</button>
+      <button class="stop" onclick="stopTimer()">Stop</button>
+      <button class="reset" onclick="resetTimer()">Reset</button>
+      <button class="countdown" onclick="startCountdown()">Countdown</button>
+    </div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+    let remainingTime = 0;
+
+    function formatTime(ms) {
+      let totalMs = Math.max(0, ms);
+
+      let hours = String(Math.floor(totalMs / 3600000)).padStart(2, '0');
+      let minutes = String(Math.floor((totalMs % 3600000) / 60000)).padStart(2, '0');
+      let seconds = String(Math.floor((totalMs % 60000) / 1000)).padStart(2, '0');
+      let milliseconds = String(totalMs % 1000).padStart(3, '0');
+
+      return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+      startTime = Date.now() - elapsedTime;
+
+      timerInterval = setInterval(() => {
+        elapsedTime = Date.now() - startTime;
+        document.getElementById('display').textContent = formatTime(elapsedTime);
+      }, 10);
+    }
+
+    function startCountdown() {
+      const input = document.getElementById('countdownInput').value;
+      if (!input || input <= 0) return;
+
+      clearInterval(timerInterval);
+      remainingTime = input * 1000;
+      startTime = Date.now();
+
+      timerInterval = setInterval(() => {
+        let elapsed = Date.now() - startTime;
+        let timeLeft = remainingTime - elapsed;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          document.getElementById('display').textContent = "00:00:00.000";
+          return;
+        }
+
+        document.getElementById('display').textContent = formatTime(timeLeft);
+      }, 10);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      elapsedTime = 0;
+      remainingTime = 0;
+      document.getElementById('display').textContent = '00:00:00.000';
+    }
+  </script>
+</body>
+</html>
